@@ -1,11 +1,15 @@
-
 const { validationResult } = require("express-validator");
 const config = require("../config/config"); // load .env variables
 const HttpError = require("../models/http-error");
 const bcrypt = require("bcryptjs"); // import bcrypt to hash passwords
 const jwt = require("jsonwebtoken"); // import jwt to sign tokens
+const { OAuth2Client } = require("google-auth-library");
 
 const User = require("../models/user-model");
+
+const client = new OAuth2Client(
+  "328895224341-mr3jsd1bquuf9vb3qsop6pm8crssjj1r.apps.googleusercontent.com"
+);
 
 //DESTRUCTURE ENV VARIABLES WITH DEFAULTS
 const { JWT_SECRET } = config;
@@ -39,7 +43,16 @@ const signup = async (req, res, next) => {
   let existingUser;
 
   try {
-    existingUser = await User.findOne({ username: username, email: email });
+    existingUser = await User.findOne({
+      $or: [
+        {
+          email: req.body.email,
+        },
+        {
+          username: req.body.username,
+        },
+      ],
+    });
   } catch (err) {
     const error = new HttpError("Signing up failed, please try again.", 500);
     return next(error);
@@ -105,7 +118,7 @@ const login = async (req, res) => {
 
 const edit = async (req, res, next) => {
   const errors = validationResult(req);
-  console.log(errors)
+  console.log(errors);
   if (!errors.isEmpty()) {
     return next(
       new HttpError("Invalid input passed, please check your data.", 422)
@@ -178,7 +191,60 @@ const edit = async (req, res, next) => {
     .json({ user: user.toObject({ getters: true }), token: token });
 };
 
+const googleLogin = async (req, res, next) => {
+  const { tokenId } = req.body;
+  const response = await client.verifyIdToken({
+    idToken: tokenId,
+    audience:
+      "328895224341-mr3jsd1bquuf9vb3qsop6pm8crssjj1r.apps.googleusercontent.com",
+  });
+  const { email_verified, name, email } = response.payload;
+
+  try {
+    let user = await User.findOne({ username: name });
+    if (!user) {
+      let password = email + config.JWT_SECRET;
+      let hashedPassword;
+      try {
+        hashedPassword = await bcrypt.hash(password, 10);
+      } catch (err) {
+        const error = new HttpError("Could not create user.", 500);
+        return next(error);
+      }
+      const createdUser = new User({
+        username: name,
+        email: email,
+        password: hashedPassword,
+      });
+      try {
+        let user = await createdUser.save();
+        const token = jwt.sign(
+          { username: user.username, user_id: user._id },
+          JWT_SECRET
+        );
+
+        res.status(201).json(token);
+      } catch (err) {
+        const error = new HttpError(
+          "Signing up failed, please try again.",
+          500
+        );
+        return next(error);
+      }
+    } else {
+      const token = jwt.sign(
+        { username: user.username, user_id: user._id },
+        JWT_SECRET
+      );
+      res.status(201).json(token);
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
 exports.signup = signup;
 exports.login = login;
 exports.edit = edit;
 exports.getUser = getUser;
+exports.googleLogin = googleLogin;

@@ -8,7 +8,6 @@ import { setRating, getAllMovies } from "../../context/movies/MovieActions";
 const MovieRating = (props) => {
   const { movie, dispatch } = useContext(MovieContext);
   const { token } = useContext(AuthContext);
-  console.log(props.value);
 
   const { user_id } = jwt_decode(token);
 

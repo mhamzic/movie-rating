@@ -35,8 +35,8 @@ const Movies = () => {
           <span className="slider round"></span>
         </label>
       </div>
-      {isChecked && <TopTen />}
-      {!isChecked && searchTerm.length >= 2 && <SearchResult />}
+      {isChecked && searchTerm <= 2 && <TopTen />}
+      {searchTerm.length >= 2 && <SearchResult />}
     </Container>
   );
 };

@@ -45,8 +45,6 @@ const changeRating = async (req, res, next) => {
 
   const { rating } = req.body;
 
-  console.log(rating);
-
   let movie;
 
   try {
@@ -68,10 +66,10 @@ const changeRating = async (req, res, next) => {
     ({ userId }) => userId.toString() === ratedBy.toString()
   );
 
-  // if (existingUser) {
-  //   const error = new HttpError("Only one vote per movie is allowed.", 404);
-  //   return next(error);
-  // }
+  if (existingUser) {
+    const error = new HttpError("Only one vote per movie is allowed.", 404);
+    return next(error);
+  }
 
   movie.ratingData.push({ rating: rating, userId: ratedBy });
 

@@ -41,10 +41,8 @@ const SearchResult = () => {
     if (searchTerm.length > 2) {
       let search = arraySearch(movies, searchTerm);
       setFilteredMovies(search);
-      // setCount(search.length)
     } else {
       setFilteredMovies(movies);
-      // setCount(people.length)
     }
   }, [searchTerm]);
 

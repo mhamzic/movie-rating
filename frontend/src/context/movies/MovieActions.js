@@ -14,33 +14,6 @@ export const getAllMovies = async (token) => {
   }
 };
 
-export const addFavorites = async (favorite) => {
-  try {
-    const { data } = await axios.post("/favorites", favorite, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(data);
-    return data;
-  } catch (err) {
-    console.log(err.response.data);
-  }
-};
-
-export const getFavorites = async (favorite) => {
-  try {
-    const { data } = await axios.get("/favorites", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return data;
-  } catch (err) {
-    console.log(err.response.data);
-  }
-};
-
 export const setRating = async (params) => {
   try {
     const { data } = await axios.post(
@@ -56,9 +29,9 @@ export const setRating = async (params) => {
         },
       }
     );
-    console.log(data);
     return data;
   } catch (err) {
+    alert(err.response.data.error)
     console.log(err);
   }
 };

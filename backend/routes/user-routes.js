@@ -8,4 +8,6 @@ router.post("/signup", validate.user, userController.signup);
 
 router.post("/login", userController.login);
 
+router.post("/googlelogin", userController.googleLogin);
+
 module.exports = router;

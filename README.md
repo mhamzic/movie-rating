@@ -1,5 +1,5 @@
 # Movie Rating App
-Movie rating engine.
+Simple movie rating app.
 
 ## Getting Started
 

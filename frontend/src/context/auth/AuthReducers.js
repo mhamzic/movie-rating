@@ -6,6 +6,7 @@ const authReducer = (state, action) => {
     }
     case "LOGOUT": {
       localStorage.removeItem("jwt");
+      window.location.reload(false);
       return { ...state, token: "", isLoggedIn: false };
     }
     default:
